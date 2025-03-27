@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct DetailGroupView: View {
-    let rowData: [String]
+    // MARK: - Properties
+    @StateObject private var viewModel: DetailGroupViewModel
     
+    // MARK: - Initialization
+    init(rowData: [String]) {
+        _viewModel = StateObject(wrappedValue: DetailGroupViewModel(rowData: rowData))
+    }
+    
+    // MARK: - Body
     var body: some View {
         ZStack {
-            
-            // MARK: - Background
+            // Background
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(red: 1, green: 0.7, blue: 0.7, opacity: 0.3),
@@ -24,62 +30,61 @@ struct DetailGroupView: View {
             )
             .ignoresSafeArea()
 
-            // MARK: - Content
+            // Content
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    
-                    // MARK: - Title
-                    Text(formatDate(rowData[0]))
+                    // Title
+                    Text(viewModel.formattedDate)
                         .font(.title2)
                         .foregroundColor(DetailViewColors.titleColor)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 10)
                     
-                    // MARK: - Échauffement
+                    // Échauffement
                     DetailRow(
                         icon: DetailViewIcons.warmup,
                         title: "Échauffement",
-                        content: rowData[1],
+                        content: viewModel.rowData[1],
                         color: DetailViewColors.warmupColor
                     )
                     
-                    // MARK: - Durée
+                    // Durée
                     DetailRow(
                         icon: DetailViewIcons.duration,
                         title: "Durée",
-                        content: rowData[2],
+                        content: viewModel.rowData[2],
                         color: DetailViewColors.durationColor
                     )
                     
-                    // MARK: - Récupération
+                    // Récupération
                     DetailRow(
                         icon: DetailViewIcons.recovery,
                         title: "Récupération",
-                        content: rowData[3],
+                        content: viewModel.rowData[3],
                         color: DetailViewColors.recoveryColor
                     )
                     
-                    // MARK: - Détails
+                    // Détails
                     DetailRow(
                         icon: DetailViewIcons.details,
                         title: "Détails",
-                        content: rowData[5],
+                        content: viewModel.rowData[5],
                         color: DetailViewColors.detailsColor
                     )
                     
-                    // MARK: - Allure
+                    // Allure
                     DetailRow(
                         icon: DetailViewIcons.pace,
                         title: "Allure",
-                        content: rowData[6],
+                        content: viewModel.rowData[6],
                         color: DetailViewColors.paceColor
                     )
                     
-                    // MARK: - Lieu
+                    // Lieu
                     DetailRow(
                         icon: DetailViewIcons.location,
                         title: "Lieu",
-                        content: rowData[7],
+                        content: viewModel.rowData[7],
                         color: DetailViewColors.locationColor
                     )
                 }
@@ -89,29 +94,14 @@ struct DetailGroupView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            // MARK: - Toolbar
             ToolbarItem(placement: .navigationBarLeading) {
                 BackButton()
             }
         }
     }
-    
-    // MARK: - Helpers
-    private func formatDate(_ dateString: String) -> String {
-        let inputFormatter = DateFormatter()
-        inputFormatter.dateFormat = "dd-MM-yyyy"
-        
-        let outputFormatter = DateFormatter()
-        outputFormatter.locale = Locale(identifier: "fr_FR")
-        outputFormatter.dateFormat = "EEEE d MMMM"
-        
-        if let date = inputFormatter.date(from: dateString) {
-            return outputFormatter.string(from: date).capitalized
-        }
-        return dateString
-    }
 }
 
+// MARK: - Preview
 #Preview {
     NavigationView {
         DetailGroupView(
