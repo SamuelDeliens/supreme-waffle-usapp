@@ -25,4 +25,10 @@ struct DateFormatterUtils {
         return dateString
     }
     
+    static func dateFromString(_ dateString: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd-MM-yyyy"
+        return formatter.date(from: dateString)
+    }
+    
 }
