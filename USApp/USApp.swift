@@ -13,11 +13,13 @@ struct USApp: App {
     
     // MARK: - Properties
     @StateObject private var viewModel = AppViewModel()
+    private let notificationService = NotificationService.shared
+    private let backgroundUpdateService = BackgroundUpdateService()
 
     // MARK: - Initializer
     init() {
-        requestNotificationPermissions()
-        startBackgroundUpdates()
+        notificationService.requestAuthorization()
+        backgroundUpdateService.startBackgroundUpdates()
     }
 
     // MARK: - Body
@@ -28,26 +30,6 @@ struct USApp: App {
                 .onAppear {
                     refreshNotifications()
                 }
-        }
-    }
-
-    // MARK: - Notifications Permissions
-    private func requestNotificationPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                print("❌ Erreur lors de la demande d'autorisation pour les notifications : \(error.localizedDescription)")
-            } else if granted {
-                print("✅ Autorisation pour les notifications accordée")
-            } else {
-                print("⚠️ Autorisation pour les notifications refusée")
-            }
-        }
-    }
-
-    // MARK: - Background Updates
-    private func startBackgroundUpdates() {
-        Task {
-            APIServiceManager.shared.startBackgroundUpdates(forTabId: "groupe")
         }
     }
 
