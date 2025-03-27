@@ -8,38 +8,40 @@
 import SwiftUI
 
 struct GroupView: View {
-    @State private var sheetData: [[String]] = []
-    @State private var isLoading: Bool = false
-    @State private var isUpdating: Bool = false
-    @State private var errorMessage: String?
-    @Binding var searchQuery: String
+    @StateObject private var viewModel: GroupViewModel
     @State private var selectedRow: [String]?
     @State private var showDetailView: Bool = false
-    var isShowingFutureSessions: Bool
-
-    private let cacheManager = CacheManager()
-
+    @Binding var externalSearchQuery: String
+    
+    init(isShowingFutureSessions: Bool, searchQuery: Binding<String>) {
+        _viewModel = StateObject(wrappedValue: GroupViewModel(
+            isShowingFutureSessions: isShowingFutureSessions,
+            searchQuery: searchQuery.wrappedValue
+        ))
+        self._externalSearchQuery = searchQuery
+    }
+    
     var body: some View {
         ZStack {
             VStack(spacing: 5) {
-                if isUpdating {
+                if viewModel.isUpdating {
                     InfiniteProgressBar(color: Color(red: 0.7, green: 0.5, blue: 1.0))
                         .frame(height: 4)
                         .padding(.horizontal)
                 }
-
-                if let errorMessage = errorMessage {
+                
+                if let errorMessage = viewModel.errorMessage {
                     Text("Erreur : \(errorMessage)")
                         .foregroundColor(.red)
                         .padding()
-                } else if filteredData().isEmpty {
+                } else if viewModel.filteredData().isEmpty {
                     Text("Aucune séance trouvée")
                         .foregroundColor(.secondary)
                         .padding()
                 } else {
                     ScrollView {
                         VStack(spacing: 10) {
-                            ForEach(filteredData(), id: \.self) { row in
+                            ForEach(viewModel.filteredData(), id: \.self) { row in
                                 Button(action: {
                                     selectedRow = row
                                     showDetailView = true
@@ -64,57 +66,19 @@ struct GroupView: View {
                 DetailGroupView(rowData: selectedRow)
             }
         }
-        .onAppear(perform: fetchGroupData)
-    }
-
-    private func filteredData() -> [[String]] {
-        let today = Calendar.current.startOfDay(for: Date())
-
-        return sheetData.filter { row in
-            guard row.count >= 8, let date = dateFromString(row[0]) else { return false }
-            let matchesSearch = searchQuery.isEmpty || row.contains { $0.localizedCaseInsensitiveContains(searchQuery) }
-            let matchesDate = isShowingFutureSessions ? date >= today : date < today
-            return matchesSearch && matchesDate
-        }
-    }
-
-    private func fetchGroupData() {
-        isLoading = true
-        errorMessage = nil
-        isUpdating = true
-
-        let cacheKey = "GoogleSheet_groupe"
-
-        // Charger les données en cache avant la mise à jour
-        if let cachedData = cacheManager.loadData(forKey: cacheKey) {
-            self.sheetData = cachedData
-            self.isLoading = false
-        }
-
-        // Simuler un délai pour garantir l'affichage de la barre
-        Task {
-            do {
-                
-                // Simuler un délai pour voir la barre de progression
-                try await Task.sleep(nanoseconds: 1_500_000_000)
-
-                let data = try await APIServiceManager.shared.fetchSheetData(tabId: "groupe", useCache: false)
-                await MainActor.run {
-                    self.sheetData = data
-                    self.isUpdating = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = "Erreur : \(error.localizedDescription)"
-                    self.isUpdating = false
-                }
+        .onAppear {
+            Task {
+                await viewModel.refreshData()
             }
+            // Synchronise la recherche externe avec le ViewModel
+            viewModel.searchQuery = externalSearchQuery
         }
-    }
-
-    private func dateFromString(_ dateString: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd-MM-yyyy"
-        return formatter.date(from: dateString)
+        .onChange(of: externalSearchQuery) { newValue in
+            viewModel.searchQuery = newValue
+        }
+        .onDisappear {
+            // Sauvegarde l'état de recherche quand on quitte la vue
+            externalSearchQuery = viewModel.searchQuery
+        }
     }
 }
