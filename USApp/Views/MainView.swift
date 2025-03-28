@@ -54,7 +54,7 @@ struct MainView: View {
                 )
             }
             .sheet(isPresented: $showInformationSheet) {
-                InformationSheet()
+                InformationSheetView()
             }
         }
     }

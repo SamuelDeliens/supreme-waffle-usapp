@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InformationSheet: View {
+struct InformationSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var colorScheme
     
@@ -157,5 +157,5 @@ struct InformationSheet: View {
 }
 
 #Preview {
-    InformationSheet()
+    InformationSheetView()
 }
