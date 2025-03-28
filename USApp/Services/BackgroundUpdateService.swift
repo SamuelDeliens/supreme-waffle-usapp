@@ -8,10 +8,15 @@
 import Foundation
 
 final class BackgroundUpdateService {
+    private let apiService: NetworkServiceProtocol
+    
+    init(apiService: NetworkServiceProtocol = APIServiceManager.shared) {
+        self.apiService = apiService
+    }
     
     func startBackgroundUpdates() {
-            Task {
-                APIServiceManager.shared.startBackgroundUpdates(forTabId: "groupe")
-            }
+        Task {
+            apiService.startBackgroundUpdates(forTabId: GoogleSheetConfig.groupTabName)
         }
+    }
 }

@@ -12,13 +12,15 @@ struct GroupView: View {
     @State private var selectedRow: [String]?
     @State private var showDetailView: Bool = false
     @Binding var externalSearchQuery: String
+    @Binding var isShowingFutureSessions: Bool
     
-    init(isShowingFutureSessions: Bool, searchQuery: Binding<String>) {
+    init(isShowingFutureSessions: Binding<Bool>, searchQuery: Binding<String>) {
         _viewModel = StateObject(wrappedValue: GroupViewModel(
-            isShowingFutureSessions: isShowingFutureSessions,
+            isShowingFutureSessions: isShowingFutureSessions.wrappedValue,
             searchQuery: searchQuery.wrappedValue
         ))
         self._externalSearchQuery = searchQuery
+        self._isShowingFutureSessions = isShowingFutureSessions
     }
     
     var body: some View {
@@ -75,6 +77,10 @@ struct GroupView: View {
         }
         .onChange(of: externalSearchQuery) { oldValue, newValue in
             viewModel.searchQuery = newValue
+        }
+        .onChange(of: isShowingFutureSessions) { oldValue, newValue in
+            viewModel.isShowingFutureSessions = newValue
+            viewModel.objectWillChange.send()
         }
         .onDisappear {
             // Sauvegarde l'état de recherche quand on quitte la vue

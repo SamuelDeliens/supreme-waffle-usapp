@@ -15,15 +15,20 @@ class GroupViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var searchQuery: String = ""
     
-    private let cacheManager = CacheManager()
-    private let apiService = APIServiceManager.shared
+    private let cacheService: CacheService
+    private let apiService: NetworkServiceProtocol
     
-    let isShowingFutureSessions: Bool
+    var isShowingFutureSessions: Bool
     
-    init(isShowingFutureSessions: Bool, searchQuery: String = "") {
-        self.isShowingFutureSessions = isShowingFutureSessions
-        self.searchQuery = searchQuery
-    }
+    init(isShowingFutureSessions: Bool,
+             searchQuery: String = "",
+             apiService: NetworkServiceProtocol = APIServiceManager.shared,
+             cacheService: CacheService = CacheService()) {
+            self.isShowingFutureSessions = isShowingFutureSessions
+            self.searchQuery = searchQuery
+            self.apiService = apiService
+            self.cacheService = cacheService
+        }
     
     func fetchGroupData() async {
         await MainActor.run {
@@ -35,7 +40,7 @@ class GroupViewModel: ObservableObject {
         let cacheKey = "GoogleSheet_groups"
 
         // Charger les données en cache
-        if let cachedData = cacheManager.loadData(forKey: cacheKey) {
+        if let cachedData = cacheService.loadData(forKey: cacheKey) {
             await MainActor.run {
                 self.sheetData = cachedData
                 self.isLoading = false

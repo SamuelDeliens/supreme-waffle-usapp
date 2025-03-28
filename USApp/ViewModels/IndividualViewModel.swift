@@ -18,8 +18,9 @@ final class IndividualViewModel: ObservableObject {
     
     // MARK: - Private Properties
     private let isShowingFutureSessions: Bool
-    private let cacheManager = CacheManager()
-    private let apiService: GoogleAPISheet
+    
+    private let cacheService: CacheService
+    private let apiService: SheetAPIProtocol
     
     // MARK: - Computed Properties
     var filteredData: [[String]] {
@@ -35,10 +36,12 @@ final class IndividualViewModel: ObservableObject {
     // MARK: - Initializer
     init(
         isShowingFutureSessions: Bool,
-        apiService: GoogleAPISheet = GoogleAPISheet()
+        apiService: SheetAPIProtocol = GoogleSheetAPI(),
+        cacheService: CacheService = CacheService()
     ) {
         self.isShowingFutureSessions = isShowingFutureSessions
         self.apiService = apiService
+        self.cacheService = cacheService
     }
     
     // MARK: - Public Methods
@@ -65,7 +68,7 @@ final class IndividualViewModel: ObservableObject {
         let cacheKey = "GoogleSheet_\(tabName)"
         
         // Load cached data if available
-        if let cachedData = cacheManager.loadData(forKey: cacheKey) {
+        if let cachedData = cacheService.loadData(forKey: cacheKey) {
             await MainActor.run {
                 sheetData = cachedData
                 isUpdating = false

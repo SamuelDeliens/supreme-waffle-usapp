@@ -141,7 +141,7 @@ struct MainView: View {
     private var content: some View {
         ScrollView {
             if selectedTab == .groupe {
-                GroupView(isShowingFutureSessions: isShowingFutureSessions, searchQuery: $searchQuery)
+                GroupView(isShowingFutureSessions: $isShowingFutureSessions, searchQuery: $searchQuery)
                     .background(Color.clear)
             } else if selectedTab == .individuel {
                 IndividualView(

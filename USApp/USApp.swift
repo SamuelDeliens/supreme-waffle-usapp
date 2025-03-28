@@ -15,6 +15,7 @@ struct USApp: App {
     @StateObject private var viewModel = AppViewModel()
     private let notificationService = NotificationService.shared
     private let backgroundUpdateService = BackgroundUpdateService()
+    private let apiService = APIServiceManager.shared
 
     // MARK: - Initializer
     init() {
