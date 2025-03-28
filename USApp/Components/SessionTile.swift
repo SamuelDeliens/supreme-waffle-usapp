@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import MapKit
+
 struct SessionTile: View {
     let type: String
     let details: String
@@ -62,6 +64,17 @@ struct SessionTile: View {
                 Text(location)
                     .font(.subheadline)
                     .foregroundColor(Color("TextTuileView"))
+                
+                // Add the maps button here
+                Spacer()
+                Button(action: openInMaps) {
+                    Image(systemName: "map")
+                        .foregroundColor(.blue)
+                        .padding(8)
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(PlainButtonStyle())
             }
 
             HStack(spacing: 8) {
@@ -81,6 +94,15 @@ struct SessionTile: View {
         .shadow(radius: 2)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+    }
+    
+    private func openInMaps() {
+        let searchQuery = location.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let urlString = "http://maps.apple.com/?q=\(searchQuery)"
+        
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
     }
 }
 
