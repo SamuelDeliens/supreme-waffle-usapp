@@ -62,7 +62,7 @@ struct GroupView: View {
                                     }) {
                                         SessionTile(
                                             type: row[4],
-                                            details: row[5],
+                                            details: row[5].extractEventTitle(),
                                             location: row[7],
                                             date: row[0]
                                         )

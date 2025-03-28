@@ -92,6 +92,7 @@ struct DetailViewColors {
     static let recoveryColor = Color.green
     static let paceColor = Color.purple.opacity(0.8)
     static let locationColor = Color.blue
+    static let participantsColor = Color(red: 0.5, green: 0.2, blue: 0.7)
 }
 
 // MARK: - DetailViewIcons
@@ -102,4 +103,5 @@ struct DetailViewIcons {
     static let recovery = "heart.circle.fill"
     static let pace = "speedometer"
     static let location = "location.fill"
+    static let participants = "person.3.fill"
 }

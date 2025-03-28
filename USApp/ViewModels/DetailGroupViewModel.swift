@@ -20,4 +20,28 @@ final class DetailGroupViewModel: ObservableObject {
     init(rowData: [String]) {
         self.rowData = rowData
     }
+    // MARK: - Private Methods
+    var eventTitle: String {
+            let details = rowData[5]
+            guard let parenthesisRange = details.range(of: "(") else {
+                return details
+            }
+            return String(details[..<parenthesisRange.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
+        var participants: [String] {
+            let details = rowData[5]
+            guard let startIndex = details.firstIndex(of: "("),
+                  let endIndex = details.lastIndex(of: ")"),
+                  startIndex < endIndex else {
+                return []
+            }
+            
+            let participantsString = String(details[details.index(after: startIndex)..<endIndex])
+            return participantsString
+                .components(separatedBy: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+        }
+
 }

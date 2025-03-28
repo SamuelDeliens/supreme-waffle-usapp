@@ -40,6 +40,16 @@ struct DetailGroupView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 10)
                     
+                    let participants = viewModel.participants
+                    if !participants.isEmpty {
+                        DetailRow(
+                            icon: DetailViewIcons.participants,
+                            title: "Participants",
+                            content: participants.joined(separator: ", "),
+                            color: DetailViewColors.participantsColor
+                        )
+                    }
+                    
                     // Échauffement
                     DetailRow(
                         icon: DetailViewIcons.warmup,
@@ -68,7 +78,7 @@ struct DetailGroupView: View {
                     DetailRow(
                         icon: DetailViewIcons.details,
                         title: "Détails",
-                        content: viewModel.rowData[5],
+                        content: viewModel.rowData[5].extractEventTitle(),
                         color: DetailViewColors.detailsColor
                     )
                     
