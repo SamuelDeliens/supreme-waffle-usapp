@@ -16,6 +16,8 @@ struct MainView: View {
     @State private var showInformationSheet: Bool = false
     @State private var isShowingFutureSessions: Bool = true
     @State private var searchQuery: String = ""
+    @State private var refetchData: (@Sendable () async -> Void)? = nil
+    @State private var isRefreshing: Bool = false
 
     // MARK: - Body
     var body: some View {
@@ -99,6 +101,7 @@ struct MainView: View {
             Spacer()
 
             if selectedTab != .ffa {
+                // Bouton pour basculer entre sessions futures/passées
                 Button(action: {
                     isShowingFutureSessions.toggle()
                 }) {
@@ -108,6 +111,20 @@ struct MainView: View {
                 }
                 .padding(.trailing, 10)
                 .accessibilityLabel(isShowingFutureSessions ? "Voir séances passées" : "Voir séances futures")
+                
+                // Bouton de rafraîchissement
+                Button(action: {
+                    refreshData()
+                }) {
+                    Image(systemName: isRefreshing ? "arrow.triangle.2.circlepath" : "arrow.clockwise")
+                        .font(.system(size: 24))
+                        .foregroundColor(.blue)
+                        .rotationEffect(isRefreshing ? .degrees(360) : .degrees(0))
+                        .animation(isRefreshing ? Animation.linear(duration: 1).repeatForever(autoreverses: false) : .default, value: isRefreshing)
+                }
+                .padding(.trailing, 10)
+                .accessibilityLabel("Rafraîchir les données")
+                .disabled(isRefreshing)
             }
 
             Button(action: {
@@ -141,8 +158,14 @@ struct MainView: View {
     private var content: some View {
         ScrollView {
             if selectedTab == .groupe {
-                GroupView(isShowingFutureSessions: $isShowingFutureSessions, searchQuery: $searchQuery)
-                    .background(Color.clear)
+                GroupView(
+                    isShowingFutureSessions: $isShowingFutureSessions,
+                    searchQuery: $searchQuery,
+                    onRefreshCallback: { callback in
+                        refetchData = callback
+                    }
+                )
+                .background(Color.clear)
             } else if selectedTab == .individuel {
                 IndividualView(
                     selectedProfile: $selectedProfile,
@@ -166,6 +189,24 @@ struct MainView: View {
                 .background(Color("ToolBarColor").opacity(0.8))
                 .frame(height: 30)
                 .ignoresSafeArea(edges: .bottom)
+        }
+    }
+    
+    // MARK: - Methods
+    private func refreshData() {
+        guard let refreshAction = refetchData, !isRefreshing else { return }
+        
+        isRefreshing = true
+        
+        Task {
+            await refreshAction()
+            
+            // Ajoute un délai minimum pour l'animation
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            
+            await MainActor.run {
+                isRefreshing = false
+            }
         }
     }
 }

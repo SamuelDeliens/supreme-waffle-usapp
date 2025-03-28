@@ -13,19 +13,27 @@ struct GroupView: View {
     @State private var showDetailView: Bool = false
     @Binding var externalSearchQuery: String
     @Binding var isShowingFutureSessions: Bool
+    @State private var isPullingToRefresh: Bool = false
     
-    init(isShowingFutureSessions: Binding<Bool>, searchQuery: Binding<String>) {
+    var onRefreshCallback: ((@escaping @Sendable () async -> Void) -> Void)?
+    
+    init(
+        isShowingFutureSessions: Binding<Bool>,
+        searchQuery: Binding<String>,
+        onRefreshCallback: ((@escaping @Sendable () async -> Void) -> Void)? = nil
+    ) {
         _viewModel = StateObject(wrappedValue: GroupViewModel(
             isShowingFutureSessions: isShowingFutureSessions.wrappedValue,
             searchQuery: searchQuery.wrappedValue
         ))
         self._externalSearchQuery = searchQuery
         self._isShowingFutureSessions = isShowingFutureSessions
+        self.onRefreshCallback = onRefreshCallback
     }
     
     var body: some View {
         ZStack {
-            VStack(spacing: 5) {
+            VStack(spacing: 10) {
                 if viewModel.isUpdating {
                     InfiniteProgressBar(color: Color(red: 0.7, green: 0.5, blue: 1.0))
                         .frame(height: 4)
@@ -33,32 +41,37 @@ struct GroupView: View {
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
-                    Text("Erreur : \(errorMessage)")
+                    Text(errorMessage)
                         .foregroundColor(.red)
-                        .padding()
+                        .font(.footnote)
+                        .padding(.horizontal)
+                }
+                
+                if viewModel.isLoading && viewModel.sheetData.isEmpty {
+                    loadingView
                 } else if viewModel.filteredData().isEmpty {
-                    Text("Aucune séance trouvée")
-                        .foregroundColor(.secondary)
-                        .padding()
+                    emptyStateView
                 } else {
                     ScrollView {
-                        VStack(spacing: 10) {
-                            ForEach(viewModel.filteredData(), id: \.self) { row in
-                                Button(action: {
-                                    selectedRow = row
-                                    showDetailView = true
-                                }) {
-                                    SessionTile(
-                                        type: row[4],
-                                        details: row[5],
-                                        location: row[7],
-                                        date: row[0]
-                                    )
+                        ZStack(alignment: .top) {
+                            VStack(spacing: 10) {
+                                ForEach(viewModel.filteredData(), id: \.self) { row in
+                                    Button(action: {
+                                        selectedRow = row
+                                        showDetailView = true
+                                    }) {
+                                        SessionTile(
+                                            type: row[4],
+                                            details: row[5],
+                                            location: row[7],
+                                            date: row[0]
+                                        )
+                                    }
+                                    .buttonStyle(TileButtonStyle())
                                 }
-                                .buttonStyle(TileButtonStyle())
                             }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
                 }
             }
@@ -70,10 +83,15 @@ struct GroupView: View {
         }
         .onAppear {
             Task {
-                await viewModel.refreshData()
+                await viewModel.fetchGroupData(forceRefresh: false)
             }
-            // Synchronise la recherche externe avec le ViewModel
             viewModel.searchQuery = externalSearchQuery
+            
+            onRefreshCallback?({ [weak viewModel] in
+                Task {
+                    await viewModel?.refreshData(forceRefresh: true)
+                }
+            })
         }
         .onChange(of: externalSearchQuery) { oldValue, newValue in
             viewModel.searchQuery = newValue
@@ -85,6 +103,44 @@ struct GroupView: View {
         .onDisappear {
             // Sauvegarde l'état de recherche quand on quitte la vue
             externalSearchQuery = viewModel.searchQuery
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+            Text("Chargement des données...")
+                .padding(.top, 8)
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+    }
+    
+    private var emptyStateView: some View {
+        VStack {
+            Spacer()
+            Image(systemName: "calendar.badge.exclamationmark")
+                .font(.system(size: 50))
+                .foregroundColor(.secondary)
+                .padding()
+            
+            Text("Aucune séance trouvée")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            Button(action: {
+                Task {
+                    await viewModel.refreshData(forceRefresh: true)
+                }
+            }) {
+                Text("Actualiser")
+                    .foregroundColor(.blue)
+                    .padding(.vertical, 8)
+            }
+            .padding(.top, 10)
+            
+            Spacer()
         }
     }
 }
