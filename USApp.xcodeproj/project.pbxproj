@@ -21,6 +21,16 @@
 		4BC3F7722D204BAA00F369B4 /* USApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = USApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		23068C182D96E6120083AF3D /* Exceptions for "USApp" folder in "USApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4BC3F7712D204BAA00F369B4 /* USApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		23068BE32D96CE670083AF3D /* USAppTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -29,6 +39,9 @@
 		};
 		4BC3F7742D204BAA00F369B4 /* USApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				23068C182D96E6120083AF3D /* Exceptions for "USApp" folder in "USApp" target */,
+			);
 			path = USApp;
 			sourceTree = "<group>";
 		};
@@ -366,7 +379,9 @@
 				DEVELOPMENT_TEAM = 29Z7LTN8PP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = USApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "L'application a besoin d'accéder à votre calendrier pour ajouter des séances d'entraînement.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -397,7 +412,9 @@
 				DEVELOPMENT_TEAM = 29Z7LTN8PP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = USApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "L'application a besoin d'accéder à votre calendrier pour ajouter des séances d'entraînement.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
