@@ -20,6 +20,8 @@ enum NetworkError: Error, LocalizedError {
     
     case noConnection
     
+    case missingAPIKey
+    
     var errorDescription: String? {
         switch self {
         case .invalidURL:
@@ -34,6 +36,8 @@ enum NetworkError: Error, LocalizedError {
             return "Erreur serveur (code \(code))"
         case .noConnection:
             return "Pas de connexion internet"
+        case .missingAPIKey:
+            return "Clé API Google Sheets manquante"
         }
     }
 }

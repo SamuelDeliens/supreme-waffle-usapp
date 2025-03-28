@@ -15,14 +15,15 @@ struct SplashScreen: View {
 
     private let welcomeColor = Color(red: 63 / 255, green: 63 / 255, blue: 153 / 255)
     private let welcomeFont = Font.custom("Georgia", size: 24)
+    
     var body: some View {
-        if isActive {
-            MainView()
-        } else {
-            ZStack {
-                Color(UIColor.systemBackground)
-                    .ignoresSafeArea()
+        ZStack {
+            Color(UIColor.systemBackground)
+                .ignoresSafeArea()
 
+            if isActive {
+                MainView()
+            } else {
                 VStack(spacing: 20) {
                     Image("Logo_Club")
                         .resizable()
@@ -49,11 +50,13 @@ struct SplashScreen: View {
                             }
                         }
                 }
-            }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                    withAnimation {
-                        isActive = true
+                .onAppear {
+                    // Note: Ce délai est maintenant géré dans USApp.swift
+                    // pour tenir compte de la saisie de l'API key
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                        withAnimation {
+                            isActive = true
+                        }
                     }
                 }
             }

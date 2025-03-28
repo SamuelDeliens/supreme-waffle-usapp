@@ -26,7 +26,11 @@ final class GoogleSheetAPI: SheetAPIProtocol {
             return dropFirstRow(from: cachedData)
         }
         
-        let urlString = "https://sheets.googleapis.com/v4/spreadsheets/\(GoogleSheetConfig.spreadsheetId)/values/\(tabName)?key=\(GoogleSheetConfig.apiKey)"
+        guard let apiKey = GoogleSheetConfig.getApiKey(), !apiKey.isEmpty else {
+            throw NetworkError.missingAPIKey
+        }
+        
+        let urlString = "https://sheets.googleapis.com/v4/spreadsheets/\(GoogleSheetConfig.spreadsheetId)/values/\(tabName)?key=\(apiKey)"
         
         guard let url = URL(string: urlString) else {
             throw NetworkError.invalidURL

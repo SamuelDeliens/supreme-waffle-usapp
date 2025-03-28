@@ -10,6 +10,8 @@ import SwiftUI
 struct InformationSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var colorScheme
+    @State private var showAPIKeyModal: Bool = false
+    @State private var showApiKeySuccessToast: Bool = false
     
     // Lien du Google Sheet
     private let googleSheetURL = URL(string: "https://docs.google.com/spreadsheets/d/1jeLNms9lfRM27GF_2hitAn4agOWaX8PVgBRk7qVsLkE/edit?gid=0#gid=0")!
@@ -24,6 +26,7 @@ struct InformationSheetView: View {
                     headerSection
                     featuresSection
                     googleSheetSection
+                    configurationSection
                     creditsSection
                 }
                 .padding()
@@ -38,6 +41,24 @@ struct InformationSheetView: View {
                     }
                 }
             }
+            .overlay {
+                if showAPIKeyModal {
+                    Color.black.opacity(0.5)
+                        .ignoresSafeArea()
+                        .overlay(
+                            APIKeyUpdateView(isPresented: $showAPIKeyModal, onSuccessfulUpdate: {
+                                showApiKeySuccessToast = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    showApiKeySuccessToast = false
+                                }
+                            })
+                        )
+                }
+            }
+            .overlay(
+                showApiKeySuccessToast ? toastView : nil,
+                alignment: .bottom
+            )
         }
     }
     
@@ -116,6 +137,35 @@ struct InformationSheetView: View {
         .foregroundColor(.blue)
     }
     
+    // MARK: - Configuration Section
+    private var configurationSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Configuration")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            Button(action: {
+                showAPIKeyModal = true
+            }) {
+                HStack {
+                    Image(systemName: "key.fill")
+                        .font(.title2)
+                    Text("Modifier la clé API Google Sheets")
+                        .font(.headline)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.blue)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.green.opacity(0.1))
+                )
+            }
+            .foregroundColor(.green)
+        }
+    }
+    
     // MARK: - Credits Section
     private var creditsSection: some View {
         VStack(alignment: .center, spacing: 8) {
@@ -153,6 +203,19 @@ struct InformationSheetView: View {
                 .fill(Color(UIColor.systemBackground))
                 .shadow(radius: 2)
         )
+    }
+    
+    // MARK: - Toast View
+    private var toastView: some View {
+        Text("Clé API mise à jour avec succès !")
+            .padding()
+            .background(Color.green)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .shadow(radius: 5)
+            .padding(.bottom, 20)
+            .transition(.move(edge: .bottom))
+            .animation(.easeInOut, value: showApiKeySuccessToast)
     }
 }
 
