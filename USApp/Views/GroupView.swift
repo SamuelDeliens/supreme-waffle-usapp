@@ -73,7 +73,7 @@ struct GroupView: View {
             // Synchronise la recherche externe avec le ViewModel
             viewModel.searchQuery = externalSearchQuery
         }
-        .onChange(of: externalSearchQuery) { newValue in
+        .onChange(of: externalSearchQuery) { oldValue, newValue in
             viewModel.searchQuery = newValue
         }
         .onDisappear {

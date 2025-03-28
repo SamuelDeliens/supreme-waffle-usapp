@@ -25,34 +25,35 @@ class GroupViewModel: ObservableObject {
         self.searchQuery = searchQuery
     }
     
-    func fetchGroupData() {
-        isLoading = true
-        errorMessage = nil
-        isUpdating = true
-        
-        let cacheKey = "GoogleSheet_groupe"
-        
-        // Charger les données en cache avant la mise à jour
-        if let cachedData = cacheManager.loadData(forKey: cacheKey) {
-            self.sheetData = cachedData
-            self.isLoading = false
+    func fetchGroupData() async {
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+            isUpdating = true
         }
-        
-        Task {
-            do {
-                // Simuler un délai pour voir la barre de progression
-                try await Task.sleep(nanoseconds: 1_500_000_000)
-                
-                let data = try await apiService.fetchSheetData(tabId: "groupe", useCache: false)
-                await MainActor.run {
-                    self.sheetData = data
-                    self.isUpdating = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = "Erreur : \(error.localizedDescription)"
-                    self.isUpdating = false
-                }
+
+        let cacheKey = "GoogleSheet_groups"
+
+        // Charger les données en cache
+        if let cachedData = cacheManager.loadData(forKey: cacheKey) {
+            await MainActor.run {
+                self.sheetData = cachedData
+                self.isLoading = false
+            }
+        }
+
+        do {
+            try await Task.sleep(nanoseconds: 1_500_000_000)
+            let data = try await apiService.fetchSheetData(tabId: "groupe", useCache: false)
+
+            await MainActor.run {
+                self.sheetData = data
+                self.isUpdating = false
+            }
+        } catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+                self.isUpdating = false
             }
         }
     }
