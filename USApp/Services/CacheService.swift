@@ -20,6 +20,9 @@ protocol CacheServiceProtocol {
     func load<T: Decodable>(forKey key: String) -> T?
     func clearCache(forKey key: String) throws
     func isDataExpired(forKey key: String, expirationInterval: TimeInterval) -> Bool
+    
+    func saveData(_ data: [[String]], forKey key: String)
+    func loadData(forKey key: String) -> [[String]]?
 }
 
 final class CacheService: CacheServiceProtocol {

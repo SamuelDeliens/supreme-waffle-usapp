@@ -9,11 +9,11 @@
 import Foundation
 
 final class GoogleSheetAPI: SheetAPIProtocol {
-    private let cacheService: CacheService
+    private let cacheService: CacheServiceProtocol
     
-    private let urlSession: URLSession
+    private let urlSession: URLSessionProtocol
     
-    init(cacheService: CacheService = CacheService(), urlSession: URLSession = .shared) {
+    init(cacheService: CacheServiceProtocol = CacheService(), urlSession: URLSessionProtocol = URLSession.shared) {
         self.cacheService = cacheService
         self.urlSession = urlSession
     }
@@ -38,7 +38,7 @@ final class GoogleSheetAPI: SheetAPIProtocol {
         
         print("🌐 Requête URL : \(urlString)")
         
-        let (data, response) = try await urlSession.data(from: url)
+        let (data, response) = try await urlSession.data(from: url, delegate: nil)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse

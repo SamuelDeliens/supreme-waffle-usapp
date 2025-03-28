@@ -18,7 +18,7 @@ final class APIServiceManager: NetworkServiceProtocol {
     
     private var timer: Timer?
     
-    private init(
+    init(
         googleAPI: SheetAPIProtocol = GoogleSheetAPI(),
         notificationService: NotificationServiceProtocol = NotificationService.shared,
         networkMonitor: NetworkMonitorProtocol = NetworkMonitor.shared
